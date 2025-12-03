@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <title>CRUD Fetch — Скорочений код</title>
+  <style>
+    body { font-family: Arial; max-width: 800px; margin: 20px auto; }
+    input, textarea { width: 100%; margin: 5px 0; padding: 6px; }
+    button { margin: 5px 0; padding: 6px 12px; }
+    .error { color: red; }
+    .post { border: 1px solid #aaa; padding: 6px; margin: 6px 0; }
+  </style>
+</head>
+<body>
+
+<h2>1. Користувачі (GET)</h2>
+<button onclick="getData('users')">Завантажити</button>
+<div id="users"></div>
+
+<h2>2. Створити пост (POST)</h2>
+<input id="title" placeholder="Заголовок">
+<textarea id="body" placeholder="Текст"></textarea>
+<input id="userId" placeholder="User ID">
+<button onclick="createPost()">Створити</button>
+<div id="create"></div>
+
+<h2>3. Оновити пост (PUT)</h2>
+<input id="updId" placeholder="ID поста">
+<input id="updTitle" placeholder="Новий заголовок">
+<textarea id="updBody" placeholder="Новий текст"></textarea>
+<button onclick="updatePost()">Оновити</button>
+<div id="update"></div>
+
+<h2>4. Видалити пост (DELETE)</h2>
+<input id="delId" placeholder="ID поста">
+<button onclick="deletePost()">Видалити</button>
+<div id="delete"></div>
+
+<script>
+const API = "https://jsonplaceholder.typicode.com";
+
+// ------------------ GET ------------------
+async function getData(type) {
+  try {
+    const data = await fetch(`${API}/${type}`).then(r => r.json());
+    document.getElementById("users").innerHTML =
+      data.map(u => `<p><b>${u.name}</b> (${u.email})</p>`).join("");
+  } catch { alert("Помилка GET"); }
+}
+
+// ------------------ POST ------------------
+async function createPost() {
+  const post = {
+    title: title.value,
+    body: body.value,
+    userId: userId.value
+  };
+  try {
+    const data = await fetch(`${API}/posts`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(post)
+    }).then(r => r.json());
+    create.innerHTML = `<div class="post"><b>${data.title}</b><p>${data.body}</p></div>`;
+  } catch { alert("Помилка POST"); }
+}
+
+// ------------------ PUT ------------------
+async function updatePost() {
+  const post = {
+    title: updTitle.value,
+    body: updBody.value
+  };
+  try {
+    const data = await fetch(`${API}/posts/${updId.value}`, {
+      method: "PUT",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(post)
+    }).then(r => r.json());
+    update.innerHTML = `<div class="post"><b>${data.title}</b><p>${data.body}</p></div>`;
+  } catch { alert("Помилка PUT"); }
+}
+
+// ------------------ DELETE ------------------
+async function deletePost() {
+  try {
+    await fetch(`${API}/posts/${delId.value}`, { method: "DELETE" });
+    delete.innerHTML = "Пост видалено ✔";
+  } catch { alert("Помилка DELETE"); }
+}
+</script>
+
+</body>
+</html>
